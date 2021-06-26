@@ -7,7 +7,7 @@ structures are found:
 
 "xx / xx / xx" 
 
-"LXXXXXXX"
+"LXXXXXX" where X MUST be a digit
 
 Data output
 -------------
