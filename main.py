@@ -9,10 +9,8 @@ def empty():
     pass
 
 
-digits = "0123456789"
-
 # Tesseract is used to read text in images
-# Must be instaled in the computer
+# Must be installed in the computer
 
 
 pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
@@ -22,6 +20,8 @@ pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesse
 def read_img(img_in, imgContour_in):
     data0 = "None"
     data1 = "None"
+    digits = "0123456789"
+    
     contours, hierarchy = cv2.findContours(img_in, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)  # Find contours
 
     for cnt in contours:
@@ -35,12 +35,12 @@ def read_img(img_in, imgContour_in):
 
             imgCropped = imgContour_in[y:y + h, x:x + w]  # Crop image using bounding rect coordinates
 
-            # Read text form cropped image
             imgCropped = cv2.cvtColor(imgCropped, cv2.COLOR_BGR2RGB)  # tesseract works with RGB
 
             string = pytesseract.image_to_string(imgCropped)  # Read and put text in a string
             # print(string)
-            # Using Naive Method
+
+            # Search for data structure using Naive Method
             res = None
             for i in range(0, len(string)):  # Search a xx\xx\xx structure in the string
                 if string[i] == "/" and string[i - 3] == "/":
@@ -56,7 +56,7 @@ def read_img(img_in, imgContour_in):
             res1 = None
             count = 0
             length = 6
-            for i in range(0, len(string)):  # Search a xx\xx\xx structure in the string
+            for i in range(0, len(string)):  # Search a LXXXXXX structure in the string (X must be  a digit)
                 if string[i] == "L":  # If not found, pass
                     substring = string[i:i + length]
                     for j in range(0, len(digits)):
@@ -83,20 +83,17 @@ while True:
 
     path = "Resources/Paquete1.jpg"  # Path of the img
     img = cv2.pyrDown(cv2.imread(path))  # Read img and scale it down
+    imgContour = img.copy()
 
     # Next lines are just for preprocessing the image
 
-    imgContour = img.copy()
-
     imgBlur = cv2.GaussianBlur(img, (5, 5), 1)
     imgGray = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2GRAY)
-
-    # Continue with preprocessing
     imgCanny = cv2.Canny(imgGray, 73, 34)
     kernel = np.ones((5, 5))
     imgDil = cv2.dilate(imgCanny, kernel, iterations=1)
 
-    # Call getContours function (read image) and store it in 'imgCroped'
+    # Call read_img function and store de data
     data = read_img(imgDil, imgContour)
 
     date = data[0]
@@ -105,6 +102,7 @@ while True:
     print(date)
     print(lote)
 
+    # Code to put the data into a .txt
     with open('Data.txt', 'w') as f:  # Create/ open 'Data.txt'
         f.write(date)  # Write string in txt
         f.write('\n')
